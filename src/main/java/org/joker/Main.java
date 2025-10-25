@@ -1,7 +1,5 @@
 package org.joker;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 public class Main {
@@ -86,57 +84,51 @@ public class Main {
         }
         int heightOfTree = bfs.size();
 
-        List<String> headNode = bfs.get(0);
+        // Adjusted base spacing calculation
+        int baseSpace = 4;
+        int headSpacing = baseSpace * (int) Math.pow(2, heightOfTree - 1); // initial spacing for head node
+        System.out.println(" ".repeat(headSpacing) + bfs.get(0).get(0)); // print head node
 
-        int headSpaceBetweenDouble = (int) Math.pow(2, heightOfTree + 2);
-        String headSpace = " ".repeat(Math.max(0, headSpaceBetweenDouble));
-        String headSpaceBy2 = " ".repeat(Math.max(0, headSpaceBetweenDouble / 2));
-        System.out.println(headSpaceBy2 + headNode.get(0)); // print head node
-
-        int reduceBy = 0;
-        int topValueForLevelWiseAdjustment = 1; // to adjust spaces level wise
-        int nextIncrement = 2; // to adjust spaces level wise
-
+        int currentSpacing = headSpacing;
         for (int i = 1; i < bfs.size(); i++) {
             List<String> level = bfs.get(i);
-            double spaceBetweenDouble = Math.pow(2, heightOfTree + 2) / ((int) Math.pow(2, i));
-            BigDecimal bigdecimal = BigDecimal.valueOf(spaceBetweenDouble).setScale(0, RoundingMode.HALF_UP); // calculate spaces between nodes
-            int spacesBetweenNode = bigdecimal.intValue();
-            StringBuilder sb = new StringBuilder();
+            currentSpacing = currentSpacing / 2; // reduce spacing for each level
 
-            if (i > topValueForLevelWiseAdjustment) {
-                topValueForLevelWiseAdjustment = topValueForLevelWiseAdjustment + nextIncrement;
-                reduceBy = reduceBy + 1;
-                nextIncrement = nextIncrement + 1;
-            }
+            // Print branches
+            StringBuilder branches = getBranches(currentSpacing, level);
+            System.out.println(branches);
 
-            String space = " ".repeat(Math.max(0, spacesBetweenNode - reduceBy));
-
-            String spaceBy2 = " ".repeat(Math.max(0, spacesBetweenNode / 2));
-            sb.append(spaceBy2);
-
-            for (int k = 0; k < level.size(); k++) {
-                if (k % 2 == 0) {
-                    sb.append("/");
-                } else {
-                    sb.append("\\");
-                }
-                sb.append(space);
-            }
-
-            System.out.println(sb);
-            sb = new StringBuilder();
-            sb.append(spaceBy2);
-            for (int k = 0; k < level.size(); k++) {
-                String val = level.get(k);
-                sb.append(val);
-                sb.append(space);
-                if (k % 2 != 0) {
-                    sb.append(" ".repeat(Math.max(0, reduceBy)));
-                }
-            }
-
-            System.out.println(sb);
+            // Print values
+            StringBuilder values = getValues(currentSpacing, level);
+            System.out.println(values);
         }
+    }
+
+    private static StringBuilder getBranches(int currentSpacing, List<String> level) {
+        StringBuilder branches = new StringBuilder();
+        branches.append(" ".repeat(currentSpacing)); // initial spacing
+        for (int k = 0; k < level.size(); k++) {
+            branches.append(k % 2 == 0 ? "/" : "\\");
+            // Adjust spacing between branches
+            if (k < level.size() - 1) {
+                int spaceBetween = Math.max(currentSpacing * 2 - 1, 1); // ensure at least 1 space
+                branches.append(" ".repeat(spaceBetween));
+            }
+        }
+        return branches;
+    }
+
+    private static StringBuilder getValues(int currentSpacing, List<String> level) {
+        StringBuilder values = new StringBuilder();
+        values.append(" ".repeat(currentSpacing)); // initial spacing
+        for (int k = 0; k < level.size(); k++) {
+            values.append(level.get(k)); // append node value
+            // Adjust spacing between values
+            if (k < level.size() - 1) {
+                int spaceBetween = Math.max(currentSpacing * 2 - level.get(k).length(), 1); // ensure at least 1 space
+                values.append(" ".repeat(spaceBetween));
+            }
+        }
+        return values;
     }
 }
